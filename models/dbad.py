@@ -23,8 +23,7 @@ class GlobalDiscriminator(nn.Module):
             nn.Linear(256,1)
         )
     def forward(self,z):
-        # z B M C
-        z = torch.max(z,dim=1)[0]
+        # z B C
         return self.net(z)
 
 class LocalDiscriminator(nn.Module):
