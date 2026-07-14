@@ -108,33 +108,20 @@ class CausalCompletion(nn.Module):
         global_adv = grad_reverse(global_feature,1.0)
         ug_pred = self.global_disc(global_adv)
         ul_pred = self.local_disc(z_adv)
-        decoder_global = self.increase_dim(
-            z.transpose(1,2)
-        ).transpose(1,2)
-        decoder_global = torch.max(
-            decoder_global,
-            dim=1
-        )[0]
+        decoder_global = self.increase_dim(z.transpose(1,2)).transpose(1,2)
+        decoder_global = torch.max(decoder_global, dim=1)[0]
         rebuild_feature = torch.cat(
             [
                 decoder_global.unsqueeze(-2).expand(-1,M,-1),
                 z,
                 coarse_point_cloud
-            ],
-            dim=-1
+            ], dim=-1
         )
-        rebuild_feature = self.reduce_map(
-            rebuild_feature.reshape(B*M,-1)
-        )
+        rebuild_feature = self.reduce_map(rebuild_feature.reshape(B*M,-1))
         relative_xyz = self.foldingnet(
             rebuild_feature
         )
-        relative_xyz = relative_xyz.reshape(
-            B,
-            M,
-            3,
-            -1
-        )
+        relative_xyz = relative_xyz.reshape(B, M, 3, -1)
         pred_points = (
             relative_xyz
             +
